@@ -240,10 +240,6 @@
         // reinicio de formulario
         formulario.reset();
         // reinicio de objeto estado formulario
-        citaValues.paciente = '';
-        citaValues.propietario = '';
-        citaValues.email = '';
-        citaValues.fecha = '',
-        citaValues.sintomas = '';
+        Object.assign(citaValues, ESTADO_FORMULARIO);
     };
 })();
