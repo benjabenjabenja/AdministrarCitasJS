@@ -14,7 +14,12 @@
     const CLASSLIST_ERROR = Object.freeze(['text-center', 'w-full', 'p-3',
         'text-white', 'my-5', 'alerta', 'uppercase', 'font-bold', 'text-sm']);
     const CLASSLIST_DIV_CITAS = ['mx-5', 'my-10', 'bg-white', 'show-md', 'px-5', 'py-10', 'rounded-md'];
-    const CLASSLIST_PACIENTE = ['font-normal', 'mb-3', 'text-gray-700', 'normal-case'];
+    const CLASSLIST_ROW = ['font-normal', 'mb-3', 'text-gray-700', 'normal-case'];
+    const CLASSLIST_BTN = ['py-2', 'px-10', 'text-white',
+        'font-bold', 'uppercase', 'rounded-lg', 'flex', 'items-center', 'gap-2'];
+    const CLASSLIST_CONTENEDOR_BTNS = ['flex', 'items-center', 'gap-2'];
+    const BACKGROUND_BTN_EDITAR = ['bg-indigo-600', 'hover:bg-indigo-700'];
+    const BACKGROUND_BTN_ELIMINAR = ['bg-red-600', 'hover:bg-red-700'];
     const BACKGROUND_ERROR = 'bg-red-500';
     const BACKGROUND_EXITO = 'bg-green-500';
     const ESTADO_FORMULARIO = Object.freeze({
@@ -99,31 +104,46 @@
                 // rows:
                 // paciente
                 const paciente = document.createElement('P');
-                paciente.classList.add(...CLASSLIST_PACIENTE);
+                paciente.classList.add(...CLASSLIST_ROW);
                 paciente.innerHTML = `<span class="font-bold uppercase">Paciente: </span> ${cita && (cita.paciente ?? '-')}`
                 // propietario
                 const propietario = document.createElement('P');
-                propietario.classList.add(...CLASSLIST_PACIENTE);
+                propietario.classList.add(...CLASSLIST_ROW);
                 propietario.innerHTML = `<span class="font-bold uppercase"> Propietario: </span> ${cita && (cita.propietario ?? '-')}`
                 // email
                 const email = document.createElement('P');
-                email.classList.add(...CLASSLIST_PACIENTE);
+                email.classList.add(...CLASSLIST_ROW);
                 email.innerHTML = `<span class="font-bold uppercase">Contacto: </span> ${cita && (cita.email ?? '-')}`
                 // fechas
                 const fecha = document.createElement('P');
-                fecha.classList.add(...CLASSLIST_PACIENTE);
+                fecha.classList.add(...CLASSLIST_ROW);
                 fecha.innerHTML = `<span class="font-bold uppercase">Fecha: </span> ${cita && (cita.fecha ?? '-')}`
                 // sintomas
                 const sintomas = document.createElement('P');
-                sintomas.classList.add(...CLASSLIST_PACIENTE);
+                sintomas.classList.add(...CLASSLIST_ROW);
                 sintomas.innerHTML = `<span class="font-bold uppercase">Sintomas: </span> ${cita && (cita.sintomas ?? '-')}`
             
+                // agregado de acciones:
+                // boton editar
+                const btnEditar = document.createElement('BUTTON');
+                btnEditar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_EDITAR);
+                btnEditar.innerHTML = 'Editar <svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>'
+                // boton eliminar
+                const btnEliminar = document.createElement('BUTTON');
+                btnEliminar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_ELIMINAR);
+                btnEliminar.innerHTML = 'Eliminar <svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                
+                const contenedorBotones = document.createElement('DIV');
+                contenedorBotones.classList.add(...CLASSLIST_CONTENEDOR_BTNS);
+                contenedorBotones.appendChild(btnEditar);
+                contenedorBotones.appendChild(btnEliminar);
                 // insertar paciente
                 divCita.append(paciente);
                 divCita.append(propietario);
                 divCita.append(email);
                 divCita.append(fecha);
                 divCita.append(sintomas);
+                divCita.append(contenedorBotones);
 
                 // inserto las rows al contenedor
                 citasContenedor.appendChild(divCita);
@@ -145,7 +165,7 @@
     const citasContenedor = document.querySelector('#citas');
     
     // Objecto de cita
-    const citaValues = { ...ESTADO_FORMULARIO };
+    const valorCita = { ...ESTADO_FORMULARIO };
 
     // LISTENERS - inputs `borrar`?
     inputPaciente.addEventListener('change', escribirObjeto);
@@ -164,17 +184,16 @@
     // FUNCIONES                                                                    //
     // ---------------------------------------------------------------------------- //
     /**
-     * Escribe en la propiedad del formulario
+     * Escribe en la propiedad del formulario.
      * @param {EventTarget} evento 
      */
     function escribirObjeto(evento) {
         evento.preventDefault();
         const { name, value } = evento.target;
-        citaValues[name] = value;
-        console.log({ cita });
+        valorCita[name] = value;
     };
     /**
-     * Envia el formulario al backend
+     * Envia el formulario al backend.
      * @param {EventTarget} evento 
      */
     function enviarFormulario(evento) {
@@ -192,7 +211,7 @@
 
         if (respuesta.validacion === ESTADO_VALIDACION.EXITO) {
             // guardo la cita en el arreglo
-            citas.agregar(citaValues);
+            citas.agregar({...valorCita});
             reiniciarFormulario();
         }
     }
@@ -210,10 +229,10 @@
             mensaje: '',
         };
 
-        const { email } = citaValues;
+        const { email } = valorCita;
 
         // formulario vacio
-        if ( Object.values(citaValues).some(v => v.trim() === '') ) {
+        if ( Object.values(valorCita).some(v => v.trim() === '') ) {
             return {
                 ...respuesta,
                 mensaje: MENSAJES_VALIDACION.CAMPOS_OBLIGATORIOS,
@@ -240,6 +259,6 @@
         // reinicio de formulario
         formulario.reset();
         // reinicio de objeto estado formulario
-        Object.assign(citaValues, ESTADO_FORMULARIO);
+        Object.assign(valorCita, ESTADO_FORMULARIO);
     };
 })();
