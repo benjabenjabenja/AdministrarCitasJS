@@ -25,7 +25,8 @@
     const ID_NOTIFICACION = Object.freeze({
         HASHTAG: '#alerta-notificacion',
         SIN_HASHTAG: 'alerta-notificacion',
-    })
+    });
+    const TIEMPO_ALERTA = 4500;
     // --------------------------------------//
     // INPUTS / FORMULARIO                   //
     // --------------------------------------//
@@ -50,7 +51,6 @@
     // LISTENERS - formulario
     // formulario?.addEventListener('change', escribirObjeto);
     formulario?.addEventListener('submit', enviarFormulario);
-
 
     // --------------------------------------//
     // FUNCIONES                             //
@@ -150,21 +150,19 @@
             notificacion.textContent = this.mensaje;
 
             // incercion de alerta:
-            // verifico que no exista y la inserto
-            if (!document.querySelector(ID_NOTIFICACION.HASHTAG)) {
-                formulario.parentElement.insertBefore(notificacion, formulario);
-            } else {
-                // sino, la elimino e inserto una nueva.
-                document.querySelector(ID_NOTIFICACION.HASHTAG).remove();
-                formulario.parentElement.insertBefore(notificacion, formulario);
+            // verifico que no exista la notificacion y la inserto
+            const alertaExistente = document.querySelector(ID_NOTIFICACION.HASHTAG);
+            if (alertaExistente) {
+                alertaExistente.remove();
             }
+            formulario.parentElement.insertBefore(notificacion, formulario);
 
             // callback para eliminar la notificacion
             const cb = () => {
-                document.querySelector(ID_NOTIFICACION.HASHTAG).remove();
+                notificacion.remove();
             };
             // despues de 1.5 segundos, la elimino
-            setTimeout(cb, 1500);
+            setTimeout(cb, TIEMPO_ALERTA);
         }
     }
 })();
