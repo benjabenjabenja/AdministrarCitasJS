@@ -13,15 +13,27 @@
     });
     const CLASSLIST_ERROR = Object.freeze(['text-center', 'w-full', 'p-3',
         'text-white', 'my-5', 'alerta', 'uppercase', 'font-bold', 'text-sm']);
-    const CLASSLIST_DIV_CITAS = ['mx-5', 'my-10', 'bg-white', 'show-md', 'px-5', 'py-10', 'rounded-md'];
-    const CLASSLIST_ROW = ['font-normal', 'mb-3', 'text-gray-700', 'normal-case'];
-    const CLASSLIST_BTN = ['py-2', 'px-10', 'text-white',
-        'font-bold', 'uppercase', 'rounded-lg', 'flex', 'items-center', 'gap-2'];
-    const CLASSLIST_CONTENEDOR_BTNS = ['flex', 'items-center', 'gap-2'];
-    const BACKGROUND_BTN_EDITAR = ['bg-indigo-600', 'hover:bg-indigo-700'];
-    const BACKGROUND_BTN_ELIMINAR = ['bg-red-600', 'hover:bg-red-700'];
+    const CLASSLIST_DIV_CITAS = Object.freeze(['mx-5', 'my-10', 'bg-white', 'show-md', 'px-5', 'py-10',
+        'rounded-md']);
+    const CLASSLIST_ROW = Object.freeze(['font-normal', 'mb-3', 'text-gray-700', 'normal-case']);
+    const CLASSLIST_BTN = Object.freeze(['py-2', 'px-10', 'text-white',
+        'font-bold', 'uppercase', 'rounded-lg', 'flex', 'items-center', 'gap-2']);
+    const CLASSLIST_CONTENEDOR_BTNS = Object.freeze(['flex', 'items-center', 'justify-between','mt-2']);
+    const BACKGROUND_BTN_EDITAR = Object.freeze(['bg-indigo-600', 'hover:bg-indigo-700']);
+    const BACKGROUND_BTN_ELIMINAR = Object.freeze(['bg-red-600', 'hover:bg-red-700']);
     const BACKGROUND_ERROR = 'bg-red-500';
     const BACKGROUND_EXITO = 'bg-green-500';
+    const ICONOS = Object.freeze({
+        EDITAR: '<svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>',
+        ELIMINAR: '<svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+    });
+    const LABELS = Object.freeze({
+        PACIENTE: 'Paciente',
+        PROPIETARIO: 'Propietaro',
+        EMAIL: 'Email',
+        FECHA: 'Fecha',
+        SINTOMAS: 'Sintomas',
+    })
     const ESTADO_FORMULARIO = Object.freeze({
         paciente: '',
         propietario: '',
@@ -102,47 +114,23 @@
                 divCita.classList.add(...CLASSLIST_DIV_CITAS);
 
                 // rows:
-                // paciente
-                const paciente = document.createElement('P');
-                paciente.classList.add(...CLASSLIST_ROW);
-                paciente.innerHTML = `<span class="font-bold uppercase">Paciente: </span> ${cita && (cita.paciente ?? '-')}`
-                // propietario
-                const propietario = document.createElement('P');
-                propietario.classList.add(...CLASSLIST_ROW);
-                propietario.innerHTML = `<span class="font-bold uppercase"> Propietario: </span> ${cita && (cita.propietario ?? '-')}`
-                // email
-                const email = document.createElement('P');
-                email.classList.add(...CLASSLIST_ROW);
-                email.innerHTML = `<span class="font-bold uppercase">Contacto: </span> ${cita && (cita.email ?? '-')}`
-                // fechas
-                const fecha = document.createElement('P');
-                fecha.classList.add(...CLASSLIST_ROW);
-                fecha.innerHTML = `<span class="font-bold uppercase">Fecha: </span> ${cita && (cita.fecha ?? '-')}`
-                // sintomas
-                const sintomas = document.createElement('P');
-                sintomas.classList.add(...CLASSLIST_ROW);
-                sintomas.innerHTML = `<span class="font-bold uppercase">Sintomas: </span> ${cita && (cita.sintomas ?? '-')}`
-            
+                const {
+                    paciente,
+                    propietario,
+                    email,
+                    fecha,
+                    sintomas
+                } = crearFilas(cita);
                 // agregado de acciones:
-                // boton editar
-                const btnEditar = document.createElement('BUTTON');
-                btnEditar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_EDITAR);
-                btnEditar.innerHTML = 'Editar <svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>'
-                // boton eliminar
-                const btnEliminar = document.createElement('BUTTON');
-                btnEliminar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_ELIMINAR);
-                btnEliminar.innerHTML = 'Eliminar <svg fill="none" class="h-5 w-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
-                
-                const contenedorBotones = document.createElement('DIV');
-                contenedorBotones.classList.add(...CLASSLIST_CONTENEDOR_BTNS);
-                contenedorBotones.appendChild(btnEditar);
-                contenedorBotones.appendChild(btnEliminar);
+                const { contenedorBotones } = crearAcciones();
+
                 // insertar paciente
                 divCita.append(paciente);
                 divCita.append(propietario);
                 divCita.append(email);
                 divCita.append(fecha);
                 divCita.append(sintomas);
+                // inserto acciones
                 divCita.append(contenedorBotones);
 
                 // inserto las rows al contenedor
@@ -261,4 +249,62 @@
         // reinicio de objeto estado formulario
         Object.assign(valorCita, ESTADO_FORMULARIO);
     };
+    /**
+     * Devuelve las filas del formulario.
+     * @param {ESTADO_FORMULARIO} value (fila a insertar)
+     * @returns {ESTADO_FORMULARIO} filas a insterar
+     */
+    function crearFilas(value) {
+        // paciente
+        const paciente = document.createElement('P');
+        paciente.classList.add(...CLASSLIST_ROW);
+        paciente.innerHTML = `<span class="font-bold uppercase">${LABELS.PACIENTE}: </span> ${value && (value.paciente ?? '-')}`
+        // propietario
+        const propietario = document.createElement('P');
+        propietario.classList.add(...CLASSLIST_ROW);
+        propietario.innerHTML = `<span class="font-bold uppercase"> ${LABELS.PROPIETARIO}: </span> ${value && (value.propietario ?? '-')}`
+        // email
+        const email = document.createElement('P');
+        email.classList.add(...CLASSLIST_ROW);
+        email.innerHTML = `<span class="font-bold uppercase">${LABELS.CONTACTO}: </span> ${value && (value.email ?? '-')}`
+        // fechas
+        const fecha = document.createElement('P');
+        fecha.classList.add(...CLASSLIST_ROW);
+        fecha.innerHTML = `<span class="font-bold uppercase">${LABELS.FECHA}: </span> ${value && (value.fecha ?? '-')}`
+        // sintomas
+        const sintomas = document.createElement('P');
+        sintomas.classList.add(...CLASSLIST_ROW);
+        sintomas.innerHTML = `<span class="font-bold uppercase">${LABELS.SINTOMAS}: </span> ${value && (value.sintomas ?? '-')}`
+        return {
+            paciente,
+            propietario,
+            email,
+            fecha,
+            sintomas
+        };
+    };
+    /**
+     * Devuelve el contenedor con los botenes de las aciones (editar/eliminar).
+     * @returns { { contenedorBotones } } object { contenedorBotones }
+     */
+    function crearAcciones() {
+        // boton editar
+        const btnEditar = document.createElement('BUTTON');
+        btnEditar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_EDITAR);
+        btnEditar.innerHTML = 'Editar ' + ICONOS.EDITAR;
+        // boton eliminar
+        const btnEliminar = document.createElement('BUTTON');
+        btnEliminar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_ELIMINAR);
+        btnEliminar.innerHTML = 'Eliminar ' + ICONOS.ELIMINAR;
+        
+        // creo el contenedor de los botones
+        const contenedorBotones = document.createElement('DIV');
+        contenedorBotones.classList.add(...CLASSLIST_CONTENEDOR_BTNS);
+        contenedorBotones.appendChild(btnEditar);
+        contenedorBotones.appendChild(btnEliminar);
+
+        return {
+            contenedorBotones
+        };
+    }
 })();
