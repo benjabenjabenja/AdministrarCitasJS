@@ -95,9 +95,9 @@
             this.citas.forEach(cita => {
                 const divCita = document.createElement('DIV');
                 divCita.classList.add(...CLASSLIST_DIV_CITAS);
-                // rows:
 
-                //
+                // rows:
+                // paciente
                 const paciente = document.createElement('P');
                 paciente.classList.add(...CLASSLIST_PACIENTE);
                 paciente.innerHTML = `<span class="font-bold uppercase">Paciente: </span> ${cita && (cita.paciente ?? '-')}`
@@ -119,11 +119,11 @@
                 sintomas.innerHTML = `<span class="font-bold uppercase">Sintomas: </span> ${cita && (cita.sintomas ?? '-')}`
             
                 // insertar paciente
-                divCita.appendChild(paciente);
-                divCita.appendChild(propietario);
-                divCita.appendChild(email);
-                divCita.appendChild(fecha);
-                divCita.appendChild(sintomas);
+                divCita.append(paciente);
+                divCita.append(propietario);
+                divCita.append(email);
+                divCita.append(fecha);
+                divCita.append(sintomas);
 
                 // inserto las rows al contenedor
                 citasContenedor.appendChild(divCita);
@@ -193,6 +193,7 @@
         if (respuesta.validacion === ESTADO_VALIDACION.EXITO) {
             // guardo la cita en el arreglo
             citas.agregar(citaValues);
+            reiniciarFormulario();
         }
     }
     /**
@@ -232,4 +233,17 @@
             mensaje: MENSAJES_VALIDACION.EXITOSO,
         };
     }
+    /**
+     * Reinicia el valor del formulario.
+     */
+    function reiniciarFormulario() {
+        // reinicio de formulario
+        formulario.reset();
+        // reinicio de objeto estado formulario
+        citaValues.paciente = '';
+        citaValues.propietario = '';
+        citaValues.email = '';
+        citaValues.fecha = '',
+        citaValues.sintomas = '';
+    };
 })();
