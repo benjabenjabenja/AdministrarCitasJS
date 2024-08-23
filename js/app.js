@@ -1,0 +1,170 @@
+(() => {
+    //---------------------------------------//
+    // CONSTANTES                            //
+    // --------------------------------------//
+    const ESTADO_VALIDACION = Object.freeze({
+        EXITO: 'EXITO',
+        ERROR: 'ERROR',
+    });
+    const MENSAJES_VALIDACION = Object.freeze({
+        CAMPOS_OBLIGATORIOS: 'Todos los campos son obligatorios',
+        EMAIL_VALIDO: 'El campo `Email` tiene que ser un email válido.',
+        EXITOSO: 'Validacion exitosa.'
+    });
+    const CLASSLIST_ERROR = Object.freeze(['text-center', 'w-full', 'p-3',
+        'text-white', 'my-5', 'alerta', 'uppercase', 'font-bold', 'text-sm']);
+    const BACKGROUND_ERROR = 'bg-red-500';
+    const BACKGROUND_EXITO = 'bg-green-500';
+    const ESTADO_FORMULARIO = Object.freeze({
+        paciente: '',
+        propietario: '',
+        email: '',
+        fecha: '',
+        sintomas: ''
+    });
+    const ID_NOTIFICACION = Object.freeze({
+        HASHTAG: '#alerta-notificacion',
+        SIN_HASHTAG: 'alerta-notificacion',
+    })
+    // --------------------------------------//
+    // INPUTS / FORMULARIO                   //
+    // --------------------------------------//
+    const inputPaciente = document.querySelector('#paciente');
+    const inputPropietario = document.querySelector('#propietario');
+    const inputEmail = document.querySelector('#email');
+    const inputFecha = document.querySelector('#fecha');
+    const inputSintomas = document.querySelector('#sintomas');
+
+    const formulario = document.querySelector('#formulario-cita');
+    
+    // Objecto de cita
+    const citaValues = { ...ESTADO_FORMULARIO };
+
+    // LISTENERS - inputs `borrar`?
+    inputPaciente.addEventListener('change', escribirObjeto);
+    inputPropietario.addEventListener('change', escribirObjeto);
+    inputEmail.addEventListener('change', escribirObjeto);
+    inputFecha.addEventListener('change', escribirObjeto);
+    inputSintomas.addEventListener('change', escribirObjeto);
+
+    // LISTENERS - formulario
+    // formulario?.addEventListener('change', escribirObjeto);
+    formulario?.addEventListener('submit', enviarFormulario);
+
+
+    // --------------------------------------//
+    // FUNCIONES                             //
+    // --------------------------------------//
+    /**
+     * Escribe en la propiedad del formulario
+     * @param {EventTarget} evento 
+     */
+    function escribirObjeto(evento) {
+        evento.preventDefault();
+        const { name, value } = evento.target;
+        citaValues[name] = value;
+        console.log({ cita });
+    };
+    /**
+     * Envia el formulario al backend
+     * @param {EventTarget} evento 
+     */
+    function enviarFormulario(evento) {
+        evento.preventDefault();
+        // valido los campos
+        const respuesta = validarFormulario(evento);
+
+        // creo notificacion 
+        const notificacion = new Notificacion({
+            tipo: respuesta.validacion,
+            mensaje: respuesta.mensaje,
+        });
+        // muestro el la respuesta
+        notificacion.mostrar();
+
+        if (respuesta.validacion === ESTADO_VALIDACION.EXITO) {
+            // se envian los datos al "backend".
+        }
+    }
+    /**
+     * Retorna si el formulario paso o no la validacion y su correspondiente mensaje.
+     * @param {EventTarget} evento 
+     * @returns {{ validacion: ESTADO_VALIDACION, mensaje: string }} respuesta de la validacion
+     */
+    function validarFormulario(evento) {
+        evento.preventDefault();
+
+        // validar campos
+        const respuesta = {
+            validacion: ESTADO_VALIDACION.ERROR,
+            mensaje: '',
+        };
+
+        const { email } = citaValues;
+
+        // formulario vacio
+        if ( Object.values(citaValues).some(v => v.trim() === '') ) {
+            return {
+                ...respuesta,
+                mensaje: MENSAJES_VALIDACION.CAMPOS_OBLIGATORIOS,
+            };
+        };
+        // email valido
+        const regExp = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        if (!regExp.test(email)) {
+            return {
+                ...respuesta,
+                mensaje: MENSAJES_VALIDACION.EMAIL_VALIDO,
+            };
+        }
+        // respuesta exitosa
+        return {
+            validacion: ESTADO_VALIDACION.EXITO,
+            mensaje: MENSAJES_VALIDACION.EXITOSO,
+        };
+    }
+
+    // --------------------------------------//
+    // CLASES                                //
+    // --------------------------------------//
+    class Notificacion {
+        constructor({ mensaje, tipo }) {
+            this.mensaje = mensaje;
+            this.tipo = tipo;
+        }
+        /**
+         * Muestra el mensaje con el que se instacio la clase.
+         */
+        mostrar() {
+            // creo el elemento
+            const notificacion = document.createElement('div');
+            notificacion.setAttribute('id', ID_NOTIFICACION.SIN_HASHTAG);
+            notificacion.classList.add(...CLASSLIST_ERROR);
+
+            // asigno el tipo de notificacion
+            this.tipo === ESTADO_VALIDACION.ERROR ?
+                notificacion.classList.add(BACKGROUND_ERROR) :
+                notificacion.classList.add(BACKGROUND_EXITO);
+            
+            // agrego mensaje
+            notificacion.textContent = this.mensaje;
+
+            // incercion de alerta:
+            // verifico que no exista y la inserto
+            if (!document.querySelector(ID_NOTIFICACION.HASHTAG)) {
+                formulario.parentElement.insertBefore(notificacion, formulario);
+            } else {
+                // sino, la elimino e inserto una nueva.
+                document.querySelector(ID_NOTIFICACION.HASHTAG).remove();
+                formulario.parentElement.insertBefore(notificacion, formulario);
+            }
+
+            // callback para eliminar la notificacion
+            const cb = () => {
+                document.querySelector(ID_NOTIFICACION.HASHTAG).remove();
+            };
+            // despues de 1.5 segundos, la elimino
+            setTimeout(cb, 1500);
+        }
+    }
+})();
