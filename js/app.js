@@ -45,6 +45,12 @@
         HASHTAG: '#alerta-notificacion',
         SIN_HASHTAG: 'alerta-notificacion',
     });
+    const IDS_BOTONES = Object.freeze({
+        EDITAR: 'btn-editar',
+        HASHTAG_EDITAR: '#btn-editar',
+        ELIMINAR: 'btn-eliminar',
+        HASTAG_ELIMINAR: '#btn-eliminar',
+    })
     const TIEMPO_ALERTA = 2500;
 
     // ---------------------------------------------------------------------------- //
@@ -122,7 +128,7 @@
                     sintomas
                 } = crearFilas(cita);
                 // agregado de acciones:
-                const { contenedorBotones } = crearAcciones();
+                const { contenedorBotones } = crearAcciones(cita);
 
                 // insertar paciente
                 divCita.append(paciente);
@@ -150,8 +156,7 @@
     //formulario
     const formulario = document.querySelector('#formulario-cita');
     // contenedor citas
-    const citasContenedor = document.querySelector('#citas');
-    
+    const citasContenedor = document.querySelector('#citas');    
     // Objecto de cita
     const valorCita = { ...ESTADO_FORMULARIO };
 
@@ -287,15 +292,19 @@
      * Devuelve el contenedor con los botenes de las aciones (editar/eliminar).
      * @returns { { contenedorBotones } } object { contenedorBotones }
      */
-    function crearAcciones() {
+    function crearAcciones(cita) {
         // boton editar
         const btnEditar = document.createElement('BUTTON');
         btnEditar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_EDITAR);
+        btnEditar.setAttribute('id', IDS_BOTONES.EDITAR);
         btnEditar.innerHTML = 'Editar ' + ICONOS.EDITAR;
+        btnEditar.onclick = () => cargaFormulario(cita);
         // boton eliminar
         const btnEliminar = document.createElement('BUTTON');
         btnEliminar.classList.add(...CLASSLIST_BTN, ...BACKGROUND_BTN_ELIMINAR);
+        btnEliminar.setAttribute('id', IDS_BOTONES.ELIMINAR);
         btnEliminar.innerHTML = 'Eliminar ' + ICONOS.ELIMINAR;
+        btnEliminar.onclick = () => eliminarCita(cita);
         
         // creo el contenedor de los botones
         const contenedorBotones = document.createElement('DIV');
@@ -306,5 +315,27 @@
         return {
             contenedorBotones
         };
+    };
+    /**
+     * Carga el formulario para su edicion.
+     * @param {ESTADO_FORMULARIO} cita 
+     */
+    function cargaFormulario(cita) {
+        // carga el formulario
+        const { 
+            paciente,
+            propietario,
+            email,
+            fecha,
+            sintomas
+        } = structuredClone(cita);
+        inputPaciente.value = paciente;
+        inputPropietario.value = propietario;
+        inputEmail.value = email;
+        inputFecha.value = fecha;
+        inputSintomas.value = sintomas;
+    };
+    function eliminarCita(cita) {
+        console.log({ eliminar: cita });
     }
 })();
